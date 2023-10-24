@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>移动泡泡</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+    }
+
+    html,
+    body {
+      overflow: hidden;
+      height: 100%;
+    }
+
+    canvas {
+      background-color: #ccc;
+    }
+  </style>
+</head>
+
+<body>
+  <canvas></canvas>
+
+  <script>
+
+    const canvas = document.querySelector('canvas');
+    const context = canvas.getContext('2d');
+    const COLORS = ['#A6F3A1', '#9F3A2C', '#AF325C', '#3DE615', '#F15423'];
+    let ballArr = [];
+    init();
+    
+    window.addEventListener('resize', resize, false);
+
+    canvas.addEventListener('mousemove', (e) => {
+      let eX = e.clientX, eY = e.clientY;
+      ballArr.push(new ball({
+        x: eX,
+        y: eY,
+        r: random(2, 10),
+        color: random(COLORS)
+      }));
+
+      if(ballArr.length > 200) {
+        ballArr.shift();
+      }
+    }, false);
+
+    function resize() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+
+    function init() {
+      resize();
+    }
+
+    (function (context) {
+      class ball {
+        static context = context;
+        constructor({ x = 0, y = 0, r = 10, color = '#A6F3A1' } = {}) {
+          this.init({ x, y, r, color });
+        }
+        init({ x, y, r, color }) {
+          this.x = x;
+          this.y = y;
+          this.r = r;
+          this.color = color;
+          this.vx = random(0,5);
+          this.vy = random(0,5);
+        }
+        updata() {
+          this.vx += this.x;
+          this.vy += this.y;
+          this.th = random(0, Math.PI * 2);
+          this.vx += Math.cos(this.th) * .1;
+          this.vy += Math.sin(this.th) * .1;
+          this.drawBall();
+        }
+        drawBall() {
+          // context.clearRect(0, 0, context.canvas.width, context.canvas.height)
+          context.beginPath();
+          context.fillStyle = this.color;
+          context.arc(this.vx, this.vy, this.r, Math.PI * 2, false);
+          context.fill();
+        }
+      }
+      window.ball = ball
+    })(context);
+    render();
+    function render() {
+      ballArr.forEach((curr, idx, arr) => {
+        curr.updata();
+      });
+      requestAnimationFrame(render);
+    }
+
+    function random(min, max) {
+      if (Array.isArray(min)) {
+        return min[~~(Math.random() * min.length)];
+      }
+      return min + Math.random() * (max - min);
+    }
+  </script>
+</body>
+
+</html>
